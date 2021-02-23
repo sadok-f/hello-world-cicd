@@ -8,4 +8,4 @@ namespace: hello-world-cicd
 images:
 - name: hello-world-cicd
   newName: sadokf/hello-world-cicd
-  newTag: bd0b95a1e7e31fd3a30c0a979ffbfc45761b001f
+  newTag: 6a9e9ef67e8dff07ed9b62ef0a51cb6c8e503aed
