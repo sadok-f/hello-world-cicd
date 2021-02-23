@@ -53,7 +53,7 @@ jobs:
       run: |
        cd kustomize/base
        kustomize edit set image hello-world-cicd=$DOCKER_USERNAME/hello-world-cicd:$GITHUB_SHA
-       cat kustomization.yaml
+       cat kustomization.yml
         
     - name: Commit files
       run: |
