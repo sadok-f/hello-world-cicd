@@ -1,0 +1,24 @@
+{
+    "name": "hello-world-cicd",
+    "version": "1.0.0",
+    "description": "Nodejs App git Github Actions as CI, ArgoCD as CD",
+    "main": "server.js",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "dependencies": {
+        "express": "^4.17.1",
+        "mysql": "^2.18.1"
+    },
+    "keywords": [
+        "cicd",
+        "ArgoCD",
+        "Github-Actions"
+    ],
+    "author": "Sadok Ferjani <sadoknet@gmail.com>",
+    "license": "=IT",
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/sadok-f/hello-world-cicd"
+    }
+}
