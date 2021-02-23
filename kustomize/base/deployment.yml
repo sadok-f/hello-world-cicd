@@ -20,5 +20,20 @@ spec:
           ports:
             - name: http
               containerPort: 8080
+          env:
+          - name: DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: db_username
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-secret
+                key: db_password
+          - name: DB_HOST
+            value: "mysql.default.svc.cluster.local"
+          - name: DB_NAME
+            value: "hello-world-db"
       imagePullSecrets:
       - name: registry-esys

@@ -1,10 +1,32 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
+metadata:
+  name: mysql
 resources:
 - deployment.yml
 - service.yml
 - ingress.yml
-namespace: hello-world-cicd
+namespace: default
+spec:
+  dependsOn:
+    - name: mysql
+images:
+- name: hello-world-cicd
+  newName: sadokf/hello-world-cicd
+  newTag: 6a9e9ef67e8dff07ed9b62ef0a51cb6c8e503aed
+---
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: nodejs-app
+resources:
+- deployment.yml
+- service.yml
+- ingress.yml
+namespace: default
+spec:
+  dependsOn:
+    - name: mysql
 images:
 - name: hello-world-cicd
   newName: sadokf/hello-world-cicd
