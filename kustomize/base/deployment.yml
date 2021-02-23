@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hello-world-cicd
+  name: hello-world-cicd
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world-cicd
+  template:
+    metadata:
+      labels:
+        app: hello-world-cicd
+    spec:
+      containers:
+        - image: hello-world-cicd
+          name: hello-world-cicd
+          ports:
+            - name: http
+              containerPort: 8080
+      imagePullSecrets:
+      - name: registry-esys

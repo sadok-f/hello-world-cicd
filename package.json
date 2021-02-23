@@ -16,7 +16,7 @@
         "Github-Actions"
     ],
     "author": "Sadok Ferjani <sadoknet@gmail.com>",
-    "license": "=IT",
+    "license": "MIT",
     "repository": {
         "type": "git",
         "url": "git://github.com/sadok-f/hello-world-cicd"
