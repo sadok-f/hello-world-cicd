@@ -1,7 +1,9 @@
 #!/bin/bash
 
-dev_cluster_name='dev'
-prod_cluster_name='prod'
+set -e
+
+dev_cluster_name='helloworld-dev'
+prod_cluster_name='helloworld-prod'
 
 main() {
   check_required_tools minikube kubectl helm argocd
@@ -20,7 +22,6 @@ start_cluster() {
   echo "Setup: setting up $1"
   minikube start \
     -p=$1 \
-    --driver=virtualbox \
     --disk-size='10000mb' \
     --addons=ingress,ingress-dns \
     --embed-certs=true
@@ -30,13 +31,18 @@ start_cluster() {
 
 deploy_mysql(){
   kubectl config use-context $1
-  kubectl apply -f minikube-manifest/mysql-config-maps-$1.yml
+  if [[ $string == *"dev"* ]]; then
+    config_map_name="mysql-config-maps-dev"
+  else
+    config_map_name="mysql-config-maps-prod"
+  fi
+  kubectl apply -f minikube-manifest/$config_map_name.yml
   helm repo add bitnami https://charts.bitnami.com/bitnami
   helm install mysql bitnami/mysql \
     --set auth.database=hello-world-db \
     --set initdbScriptsConfigMap=configmapscripts
 
-  kubectl delete secret db-secret
+  kubectl delete secret db-secret || true
   db_password=$(kubectl get secret --namespace default mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode)
   kubectl create secret generic db-secret \
                                        --from-literal=db_username=root \
@@ -53,7 +59,7 @@ deploy_argocd() {
   helm repo add argo https://argoproj.github.io/argo-helm
   helm install argo-cd argo/argo-cd -f minikube-manifest/argocd.yaml \
     --set server.ingress.hosts[0]=$argo_endpoint \
-    --set server.extraArg[0]="--insecure"
+    --set server.extraArg[0]="--insecure" || true
   
   echo "Wait until ArgoCD is up and running:"
   while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' -k https://$argo_endpoint/)" != "200" ]]; do echo "https://$argo_endpoint not reachable, sleep 5 sec";sleep 5; done
