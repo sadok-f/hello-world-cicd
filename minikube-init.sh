@@ -31,7 +31,7 @@ start_cluster() {
 
 deploy_mysql(){
   kubectl config use-context $1
-  if [[ $string == *"dev"* ]]; then
+  if [[ $1 == *"dev"* ]]; then
     config_map_name="mysql-config-maps-dev"
   else
     config_map_name="mysql-config-maps-prod"
