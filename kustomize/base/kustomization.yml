@@ -8,7 +8,7 @@ namespace: default
 images:
 - name: hello-world-cicd
   newName: sadokf/hello-world-cicd
-  newTag: 0777f2b5ff32c46ac67b77a93df9ac68e8822434
+  newTag: 00d6e8731b67dee5753250409b88f652b9d5a7ce
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
@@ -19,4 +19,4 @@ namespace: default
 images:
 - name: hello-world-cicd
   newName: sadokf/hello-world-cicd
-  newTag: 0777f2b5ff32c46ac67b77a93df9ac68e8822434
+  newTag: 00d6e8731b67dee5753250409b88f652b9d5a7ce
