@@ -1,0 +1,11 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: configmapscripts
+data:
+  hello-world-db.sql: |-
+      USE hello-world-db;
+      CREATE TABLE IF NOT EXISTS data (value VARCHAR(50));
+      INSERT INTO data (value) VALUES ("Hello World! From Dev");
+
