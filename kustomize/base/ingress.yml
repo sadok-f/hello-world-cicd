@@ -9,5 +9,7 @@ spec:
           - path: /
             pathType: Prefix
             backend:
-              serviceName: hello-world-cicd
-              servicePort: http
+              service:
+                name: hello-world-cicd
+                port:
+                  number: 80
