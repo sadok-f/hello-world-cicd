@@ -5,6 +5,11 @@ set -e
 dev_cluster_name='helloworld-dev'
 prod_cluster_name='helloworld-prod'
 
+YELLOW='\033[1;33m'
+PURPLE='\033[1;35m'
+BLUE='\033[1;34m'
+NC='\033[0m' # No Color
+
 main() {
   check_required_tools minikube kubectl helm argocd
   start_cluster $dev_cluster_name
@@ -101,16 +106,12 @@ check_required_tools() {
 
 print_links() {
   kubectl config use-context $dev_cluster_name
-  printinfo "Argo CD URL: https://argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io"
-  printinfo "Crdentials:"
-  printinfo "username: admin"
-  printinfo "password: $(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)"
+  printinfo "Argo CD URL: ${BLUE} https://argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io \
+              \n ${PURPLE} username: ${BLUE} admin \
+              \n ${PURPLE} password: ${BLUE} $(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)"
 }
 
 printinfo (){
-  YELLOW='\033[1;33m'
-  PURPLE='\033[1;35m'
-  NC='\033[0m' # No Color
   printf "${YELLOW}############################################################ \n"
   printf "${PURPLE}### INFO: $1 \n${NC}"
 }
