@@ -9,27 +9,28 @@ main() {
   check_required_tools minikube kubectl helm argocd
   start_cluster $dev_cluster_name
   start_cluster $prod_cluster_name
-  dev_cluster_ip=$(minikube ip --profile=$dev_cluster_name)
-  echo "Setup: sleeping 30 seconds while waiting for ingress controller to boot up in dev cluster"
+  printinfo "sleeping 30 seconds while waiting for ingress controller to boot up in dev cluster"
   sleep 30
-  deploy_argocd
   deploy_mysql $dev_cluster_name
   deploy_mysql $prod_cluster_name
+  deploy_argocd
   print_links
 }
 
 start_cluster() {
-  echo "Setup: setting up $1"
+  printinfo "Setting up minikube cluster: $1"
   minikube start \
     -p=$1 \
     --disk-size='10000mb' \
     --addons=ingress,ingress-dns \
     --embed-certs=true
-  echo "Setup: creating RBAC objects for helm in $1"
+  printinfo "Creating RBAC objects for helm in $1"
   kubectl apply -f ./minikube-manifest/rbac.yaml
 }
 
 deploy_mysql(){
+  printinfo "Deploying Mysql Chart to $1 cluster"
+
   kubectl config use-context $1
   if [[ $1 == *"dev"* ]]; then
     config_map_name="mysql-config-maps-dev"
@@ -40,7 +41,7 @@ deploy_mysql(){
   helm repo add bitnami https://charts.bitnami.com/bitnami
   helm install mysql bitnami/mysql \
     --set auth.database=hello-world-db \
-    --set initdbScriptsConfigMap=configmapscripts
+    --set initdbScriptsConfigMap=configmapscripts  || true
 
   kubectl delete secret db-secret || true
   db_password=$(kubectl get secret --namespace default mysql -o jsonpath="{.data.mysql-root-password}" | base64 --decode)
@@ -51,17 +52,17 @@ deploy_mysql(){
 
 # Deploy argocd chart to dev cluster
 deploy_argocd() {
-  
+  printinfo "Deploying ArgoCD Chart to dev cluster"
+
   kubectl config use-context $dev_cluster_name
   argo_endpoint="argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io"
 
-  echo "Setup: deploying ArgoCD Chart to dev cluster"
   helm repo add argo https://argoproj.github.io/argo-helm
   helm install argo-cd argo/argo-cd -f minikube-manifest/argocd.yaml \
     --set server.ingress.hosts[0]=$argo_endpoint \
     --set server.extraArg[0]="--insecure" || true
   
-  echo "Wait until ArgoCD is up and running:"
+  printinfo "Wait until ArgoCD is up and running:"
   while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' -k https://$argo_endpoint/)" != "200" ]]; do echo "https://$argo_endpoint not reachable, sleep 5 sec";sleep 5; done
 
   init_pwd=$(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)
@@ -83,29 +84,35 @@ deploy_argocd() {
 }
 
 check_required_tools() {
-  echo "Setup: running:"
+  printinfo "running:"
   list_programs=$(echo "$*" | sort -u | tr "\n" " ")
-  echo "Setup: verify $list_programs"
+  printinfo "verify $list_programs"
   programs_ok=1
   for prog in "$@"; do
     if [[ -z $(which "$prog") ]]; then
-      echo "Tool $prog cannot be found on this machine"
+      printinfo "Tool $prog cannot be found on this machine"
       programs_ok=0
     fi
   done
   if [[ $programs_ok -eq 1 ]]; then
-    echo "Setup: check required programs OK"
+    printinfo "check required programs OK"
   fi
 }
 
 print_links() {
   kubectl config use-context $dev_cluster_name
-  echo "##############################################"
-  echo "Argo CD URL: https://argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io"
-  echo "Crdentials:"
-  echo "username: admin"
-  echo "password: $(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)"
-  echo "##############################################"
+  printinfo "Argo CD URL: https://argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io"
+  printinfo "Crdentials:"
+  printinfo "username: admin"
+  printinfo "password: $(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)"
+}
+
+printinfo (){
+  YELLOW='\033[1;33m'
+  PURPLE='\033[1;35m'
+  NC='\033[0m' # No Color
+  printf "${YELLOW}############################################################ \n"
+  printf "${PURPLE}### INFO: $1 \n${NC}"
 }
 
 # Run main function
