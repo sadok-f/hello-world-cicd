@@ -8,6 +8,7 @@ prod_cluster_name='helloworld-prod'
 YELLOW='\033[0;33m'
 PURPLE='\033[1;35m'
 GREEN='\033[1;32m'
+RED='\033[1;31m'
 LIGHT_YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
@@ -68,7 +69,7 @@ deploy_argocd() {
     --set server.ingress.hosts[0]=$argo_endpoint \
     --set server.extraArg[0]="--insecure" || true
   
-  printinfo "Wait until ArgoCD is up and running:"
+  printinfo "Wait until Argo CD is up and running:"
   while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' -k https://$argo_endpoint/)" != "200" ]]; do echo "https://$argo_endpoint not reachable, sleep 5 sec";sleep 5; done
 
   init_pwd=$(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)
@@ -83,7 +84,7 @@ deploy_argocd() {
   argocd cluster add $prod_cluster_name
   argocd app create hello-world-cicd-prod \
     --repo https://github.com/sadok-f/hello-world-cicd \
-    --path kustomize/base \
+    --path kustomize/overlays/prod \
     --dest-server https://$(minikube ip --profile=$prod_cluster_name):8443 \
     --dest-namespace default \
     --sync-policy automated
@@ -92,23 +93,17 @@ deploy_argocd() {
 check_required_tools() {
   list_programs=$(echo "$*" | sort -u | tr "\n" " ")
   printinfo "Check if the following tools are installed: $list_programs"
-  programs_ok=1
   for prog in "$@"; do
-    if [[ -z $(which "$prog") ]]; then
-      printinfo "Tool $prog cannot be found on this machine"
-      programs_ok=0
-    fi
+    command -v $prog >/dev/null 2>&1 || { printf >&2 "${RED}*** $prog is not installed.  Aborting.${NC}"; exit 1; }
   done
-  if [[ $programs_ok -eq 1 ]]; then
-    printinfo "Check required tool OK"
-  fi
+  printinfo  "Check required tools OK"
 }
 
 print_links() {
   kubectl config use-context $dev_cluster_name
   printinfo "Argo CD URL: ${GREEN} https://argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io \
               \n ${PURPLE} username: ${GREEN} admin \
-              \n ${PURPLE} password: ${GREEN} $(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)"
+              \n ${PURPLE} initial password: ${GREEN} $(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)"
 }
 
 printinfo (){
