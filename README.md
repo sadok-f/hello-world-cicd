@@ -5,7 +5,7 @@ Retrieves a string from a MYSQL database and returns it as an HTTP response.
 
 ## Architecture Overview:
 
-![Architecture Overview](img/hello-world-cicd.png)
+![Architecture Overview](img/hello-world-cicd.jpg)
 
 ## Required tools:
 These tools need to be present on the system before running init script:
