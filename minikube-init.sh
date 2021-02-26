@@ -5,16 +5,17 @@ set -e
 dev_cluster_name='helloworld-dev'
 prod_cluster_name='helloworld-prod'
 
-YELLOW='\033[1;33m'
+YELLOW='\033[0;33m'
 PURPLE='\033[1;35m'
-BLUE='\033[1;34m'
+GREEN='\033[1;32m'
+LIGHT_YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 main() {
   check_required_tools minikube kubectl helm argocd
   start_cluster $dev_cluster_name
   start_cluster $prod_cluster_name
-  printinfo "sleeping 30 seconds while waiting for ingress controller to boot up in dev cluster"
+  printinfo "Sleeping 30 seconds while waiting for ingress controller to boot up in dev cluster"
   sleep 30
   deploy_mysql $dev_cluster_name
   deploy_mysql $prod_cluster_name
@@ -89,9 +90,8 @@ deploy_argocd() {
 }
 
 check_required_tools() {
-  printinfo "running:"
   list_programs=$(echo "$*" | sort -u | tr "\n" " ")
-  printinfo "verify $list_programs"
+  printinfo "Check if the following tools are installed: $list_programs"
   programs_ok=1
   for prog in "$@"; do
     if [[ -z $(which "$prog") ]]; then
@@ -100,20 +100,20 @@ check_required_tools() {
     fi
   done
   if [[ $programs_ok -eq 1 ]]; then
-    printinfo "check required programs OK"
+    printinfo "Check required tool OK"
   fi
 }
 
 print_links() {
   kubectl config use-context $dev_cluster_name
-  printinfo "Argo CD URL: ${BLUE} https://argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io \
-              \n ${PURPLE} username: ${BLUE} admin \
-              \n ${PURPLE} password: ${BLUE} $(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)"
+  printinfo "Argo CD URL: ${GREEN} https://argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io \
+              \n ${PURPLE} username: ${GREEN} admin \
+              \n ${PURPLE} password: ${GREEN} $(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)"
 }
 
 printinfo (){
-  printf "${YELLOW}############################################################ \n"
-  printf "${PURPLE}### INFO: $1 \n${NC}"
+  printf "${YELLOW}###################################################################################################### \n"
+  printf "${LIGHT_YELLOW}### INFO: ${PURPLE} $1 \n${NC}"
 }
 
 # Run main function
