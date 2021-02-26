@@ -21,6 +21,7 @@ main() {
   deploy_mysql $dev_cluster_name
   deploy_mysql $prod_cluster_name
   deploy_argocd
+  argocd_configure_app
   print_links
 }
 
@@ -71,6 +72,10 @@ deploy_argocd() {
   
   printinfo "Wait until Argo CD is up and running:"
   while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' -k https://$argo_endpoint/)" != "200" ]]; do echo "https://$argo_endpoint not reachable, sleep 5 sec";sleep 5; done
+}
+
+argocd_configure_app(){
+  argo_endpoint="argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io"
 
   init_pwd=$(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)
   argocd --insecure login $argo_endpoint --grpc-web --username=admin --password=$init_pwd

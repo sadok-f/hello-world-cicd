@@ -2,6 +2,11 @@
 
 Retrieves a string from a MYSQL database and returns it as an HTTP response.
 
+
+## Architecture Overview:
+
+![Architecture Overview](img/hello-world-cicd.png)
+
 ## Required tools:
 These tools need to be present on the system before running init script:
 
@@ -19,7 +24,7 @@ These tools need to be present on the system before running init script:
 ./minikube-init.sh
 ```
 
-## Environment Variables for the NodeJs app
+### Environment Variables for the NodeJs app
 - DB_HOSTNAME
 - DB_USERNAME
 - DB_PASSWORD
