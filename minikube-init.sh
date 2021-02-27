@@ -2,9 +2,7 @@
 
 set -e
 
-dev_cluster_name='helloworld-dev'
-prod_cluster_name='helloworld-prod'
-
+# Color constants
 YELLOW='\033[0;33m'
 PURPLE='\033[1;35m'
 GREEN='\033[1;32m'
@@ -12,19 +10,11 @@ RED='\033[1;31m'
 LIGHT_YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-main() {
-  check_required_tools minikube kubectl helm argocd
-  start_cluster $dev_cluster_name
-  start_cluster $prod_cluster_name
-  printinfo "Sleeping 30 seconds while waiting for ingress controller to boot up in dev cluster"
-  sleep 30
-  deploy_mysql $dev_cluster_name
-  deploy_mysql $prod_cluster_name
-  deploy_argocd
-  argocd_configure_app
-  print_links
-}
+# Clusters name
+dev_cluster_name='helloworld-dev'
+prod_cluster_name='helloworld-prod'
 
+# To start a minikube cluster
 start_cluster() {
   printinfo "Setting up minikube cluster: $1"
   minikube start \
@@ -36,6 +26,7 @@ start_cluster() {
   kubectl apply -f ./minikube-manifest/rbac.yaml
 }
 
+# To deploy a Mysql instance via Helm chart
 deploy_mysql(){
   printinfo "Deploying Mysql Chart to $1 cluster"
 
@@ -58,7 +49,7 @@ deploy_mysql(){
                                        --from-literal=db_password=$db_password
 }
 
-# Deploy argocd chart to dev cluster
+# Deploy ArgoCD chart to dev cluster
 deploy_argocd() {
   printinfo "Deploying ArgoCD Chart to dev cluster"
 
@@ -74,11 +65,18 @@ deploy_argocd() {
   while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' -k https://$argo_endpoint/)" != "200" ]]; do echo "https://$argo_endpoint not reachable, sleep 5 sec";sleep 5; done
 }
 
-argocd_configure_app(){
+# Configure ArgoCD
+configure_argocd_apps(){
+  # ArgoCD endpoint
   argo_endpoint="argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io"
 
+  # Get the inital password
   init_pwd=$(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)
+
+  # Login via cli
   argocd --insecure login $argo_endpoint --grpc-web --username=admin --password=$init_pwd
+
+  # Create Hello-world-cicd app in dev cluster
   argocd app create hello-world-cicd-dev \
     --repo https://github.com/sadok-f/hello-world-cicd \
     --path kustomize/base \
@@ -86,7 +84,10 @@ argocd_configure_app(){
     --dest-namespace default \
     --sync-policy automated
   
+  # Add Prod Cluster
   argocd cluster add $prod_cluster_name
+
+  # Create Hello-world-cicd app in prod cluster
   argocd app create hello-world-cicd-prod \
     --repo https://github.com/sadok-f/hello-world-cicd \
     --path kustomize/overlays/prod \
@@ -95,6 +96,7 @@ argocd_configure_app(){
     --sync-policy automated
 }
 
+# Check required tools
 check_required_tools() {
   list_programs=$(echo "$*" | sort -u | tr "\n" " ")
   printinfo "Check if the following tools are installed: $list_programs"
@@ -104,19 +106,40 @@ check_required_tools() {
   printinfo  "Check required tools OK"
 }
 
-print_links() {
+# Print ArgoCD Access
+print_argocd_access() {
   kubectl config use-context $dev_cluster_name
   printinfo "Argo CD URL: ${GREEN} https://argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io \
               \n ${PURPLE} username: ${GREEN} admin \
               \n ${PURPLE} initial password: ${GREEN} $(kubectl get pods -n default -l app.kubernetes.io/name=argocd-server -o name | cut -d'/' -f 2)"
 }
 
+# Format output
 printinfo (){
   printf "${YELLOW}###################################################################################################### \n"
   printf "${LIGHT_YELLOW}### INFO: ${PURPLE} $1 \n${NC}"
 }
 
-# Run main function
-main
+# Check required tools
+check_required_tools minikube kubectl helm argocd
+
+# Starting up the Dev and Prod clusters
+start_cluster $dev_cluster_name
+start_cluster $prod_cluster_name
+
+# Sleeping for 30 sec
+printinfo "Sleeping 30 seconds while waiting for ingress controller to boot up in dev cluster"
+sleep 30
+
+# Deploying Mysql to Dev and Prod Clusters
+deploy_mysql $dev_cluster_name
+deploy_mysql $prod_cluster_name
+
+# Deploying & Configuring Argo CD
+deploy_argocd
+configure_argocd_apps
+
+# Printing Argo CD access Credentials
+print_argocd_access
 
 exit 0
