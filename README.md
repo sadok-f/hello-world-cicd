@@ -4,7 +4,7 @@ This is one single repo that contains a NodeJs application showing "Hello World"
 
 It uses Github Actions to build and push a Docker image to Docker Hub and updates kustomize yaml file with the new image tag.
 
-2 Actions secrets needed to be created in the repo in order to be able to push images to Docker Hub:
+2 Actions secrets needed to be created in the repo in order push images to Docker Hub:
 
 - `DOCKER_USERNAME`: docker hub username
 - `DOCKER_TOKEN`: docker hub token
