@@ -23,7 +23,7 @@ start_cluster() {
     --addons=ingress,ingress-dns \
     --embed-certs=true
   printinfo "Creating RBAC objects for helm in $1"
-  kubectl apply -f ./minikube-manifest/rbac.yaml
+  kubectl apply -f ./minikube-manifest/helm-rbac.yml
 }
 
 # To deploy a Mysql instance via Helm chart
@@ -57,7 +57,7 @@ deploy_argocd() {
   argo_endpoint="argo.dev.$(minikube ip --profile=$dev_cluster_name).nip.io"
 
   helm repo add argo https://argoproj.github.io/argo-helm
-  helm install argo-cd argo/argo-cd -f minikube-manifest/argocd.yaml \
+  helm install argo-cd argo/argo-cd -f minikube-manifest/argocd.yml \
     --set server.ingress.hosts[0]=$argo_endpoint \
     --set server.extraArg[0]="--insecure" || true
   

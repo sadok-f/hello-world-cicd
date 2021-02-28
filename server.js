@@ -22,7 +22,7 @@ connection.connect((err) => {
 app.get("/", (req, result) => {
     connection.query("SELECT * from data LIMIT 1", (err, rows) => {
         if (err) throw err;
-        result.send(rows[0]["value"] + ", v1");
+        result.send(rows[0]["value"]);
     });
 });
 
