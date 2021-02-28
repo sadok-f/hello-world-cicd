@@ -32,7 +32,7 @@ These tools need to be present on the system before running init script:
 2. Run the setup script like the following:
 
 ```sh
- cd hello-world-cicd
+cd hello-world-cicd
 ./init.sh
 ```
 
