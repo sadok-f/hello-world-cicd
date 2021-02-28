@@ -28,12 +28,12 @@ These tools need to be present on the system before running init script:
 
 ## How to setup:
 
-1. Clone this repo locally
+1. Clone the repo : `git clone git@github.com:sadok-f/hello-world-cicd.git`
 2. Run the setup script like the following:
 
 ```sh
+ cd hello-world-cicd
 ./init.sh
 ```
 
-At the end of the script, the URL to Argo CD will be shown with it initial credentials.
-
+At the end of the script, the URL to Argo CD will be shown with its initial credentials.
