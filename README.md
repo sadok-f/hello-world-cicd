@@ -38,3 +38,11 @@ cd hello-world-cicd
 ```
 
 At the end of the script, the URL to Argo CD will be shown with its initial credentials.
+
+### Argo CD: hello-world-cicd resources in Dev Cluster
+
+![argocd-dev](img/argocd-dev.png)
+
+### Argo CD: hello-world-cicd resources in Prod Cluster
+
+![argocd-prod](img/argocd-prod.png)
