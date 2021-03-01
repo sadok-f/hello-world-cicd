@@ -20,8 +20,7 @@ start_cluster() {
   minikube start \
     -p=$1 \
     --disk-size='10000mb' \
-    --addons=ingress,ingress-dns \
-    --embed-certs=true
+    --addons=ingress
   printinfo "Creating RBAC objects for helm in $1"
   kubectl apply -f ./minikube-manifest/helm-rbac.yml
 }
