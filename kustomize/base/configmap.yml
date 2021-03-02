@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-db
+data:
+  db_host: "mysql.default.svc.cluster.local"
+  db_name: "hello-world-db"

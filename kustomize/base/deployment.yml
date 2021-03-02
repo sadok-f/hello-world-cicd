@@ -32,8 +32,14 @@ spec:
                   name: db-secret
                   key: db_password
             - name: DB_HOST
-              value: "mysql.default.svc.cluster.local"
+              valueFrom:
+                configMapKeyRef:
+                  name: config-db
+                  key: db_host
             - name: DB_NAME
-              value: "hello-world-db"
+              valueFrom:
+                configMapKeyRef:
+                  name: config-db
+                  key: db_name
       imagePullSecrets:
         - name: registry-esys
