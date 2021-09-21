@@ -53,7 +53,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Setup Kustomize
-      uses: imranismail/setup-kustomize@v1.5.4
+      uses: imranismail/setup-kustomize@v1.6.0
       with:
         kustomize-version: "3.6.1"
 
