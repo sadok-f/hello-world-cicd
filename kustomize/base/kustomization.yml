@@ -9,4 +9,4 @@ namespace: default
 images:
 - name: hello-world-cicd
   newName: sadokf/hello-world-cicd
-  newTag: 0.0.108
+  newTag: 0.0.109
