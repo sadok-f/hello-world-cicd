@@ -17,7 +17,7 @@ jobs:
     steps:
       
     - name: Check out code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
    
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v6.4.0
@@ -50,7 +50,7 @@ jobs:
 
     steps:
     - name: Check out code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Setup Kustomize
       uses: imranismail/setup-kustomize@v3
